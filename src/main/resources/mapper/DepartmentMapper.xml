@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.workrecode.mapper.DepartmentMapper">
+
+    <!-- 部门列表：必须用 LEFT JOIN，否则没有员工的部门会被过滤掉 -->
+    <select id="list" resultType="java.util.Map">
+        SELECT
+        d.id,
+        d.name,
+        d.description,
+        COUNT(e.id) AS employeeCount
+        FROM department d
+        LEFT JOIN employee e
+        ON e.department_id = d.id
+        <where>
+            <if test="name != null and name != ''">
+                AND d.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+        </where>
+        GROUP BY d.id, d.name, d.description
+        ORDER BY d.id DESC
+    </select>
+
+    <insert id="insert">
+        INSERT INTO department (name, description)
+        VALUES (#{name}, #{description})
+    </insert>
+
+    <update id="update">
+        UPDATE department
+        SET name = #{name},
+            description = #{description}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM department WHERE id = #{id}
+    </delete>
+
+</mapper>
