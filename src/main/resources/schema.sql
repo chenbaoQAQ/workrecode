@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `employee` (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =========================
--- 3) 用户表 user（注意：user 用反引号）
+-- 3) 用户表 user
 -- =========================
 CREATE TABLE IF NOT EXISTS `user` (
                                       `id` BIGINT NOT NULL AUTO_INCREMENT,
