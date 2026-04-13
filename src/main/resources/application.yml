@@ -15,7 +15,6 @@ spring:
     init:
       mode: never
 
-  # 彻底关闭 Flyway,不禁用跑不起来！！！！！！！！
   flyway:
     enabled: false
 
