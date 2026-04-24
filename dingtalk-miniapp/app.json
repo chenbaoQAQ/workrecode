@@ -1,0 +1,10 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "defaultTitle": "在工填报",
+    "titleBarColor": "#FFFFFF",
+    "pullRefresh": true
+  }
+}

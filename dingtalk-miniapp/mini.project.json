@@ -1,0 +1,6 @@
+{
+  "miniprogramRoot": "./",
+  "compileType": "mini",
+  "projectname": "workrecode-dingtalk-miniapp",
+  "description": "在工状态审计员工端钉钉小程序演示版"
+}

@@ -35,7 +35,7 @@ const router = createRouter({
       path: '/employees',
       name: 'employees',
       component: () => import('../views/EmployeeView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, adminOnly: true }
     },
 
     // 部门
@@ -43,7 +43,28 @@ const router = createRouter({
       path: '/departments',
       name: 'departments',
       component: () => import('../views/DepartmentView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, adminOnly: true }
+    },
+
+    {
+      path: '/work-records',
+      name: 'work-records',
+      component: () => import('../views/WorkRecordView.vue'),
+      meta: { requiresAuth: true, employeeOnly: true }
+    },
+
+    {
+      path: '/work-admin',
+      name: 'work-admin',
+      component: () => import('../views/WorkAdminView.vue'),
+      meta: { requiresAuth: true, adminOnly: true }
+    },
+
+    {
+      path: '/work-projects',
+      name: 'work-projects',
+      component: () => import('../views/WorkProjectView.vue'),
+      meta: { requiresAuth: true, adminOnly: true }
     }
   ]
 })
@@ -51,9 +72,22 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth) {
-    const user = localStorage.getItem('user')
-    if (user) next()
-    else next('/login')
+    const userText = localStorage.getItem('user')
+    if (!userText) {
+      next('/login')
+      return
+    }
+    const user = JSON.parse(userText)
+    const isAdmin = user?.role === 'ADMIN'
+    if (to.meta.adminOnly && !isAdmin) {
+      next('/work-records')
+      return
+    }
+    if (to.meta.employeeOnly && isAdmin) {
+      next('/work-admin')
+      return
+    }
+    next()
   } else {
     next()
   }

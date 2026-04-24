@@ -63,6 +63,11 @@
 
         <el-table-column prop="id" label="ID" width="80" align="center" />
         <el-table-column prop="name" label="姓名" width="120" />
+        <el-table-column prop="username" label="登录账号" width="140">
+          <template #default="{ row }">
+            {{ row.username || `emp${row.id}` }}
+          </template>
+        </el-table-column>
         <el-table-column prop="gender" label="性别" width="100" align="center" />
 
         <!-- 后端返回 departmentName（驼峰），不是 department_name -->
@@ -98,6 +103,10 @@
       <el-form :model="form" label-width="80px">
         <el-form-item label="姓名" required>
           <el-input v-model="form.name" placeholder="请输入姓名" />
+        </el-form-item>
+
+        <el-form-item label="登录账号">
+          <el-input v-model="form.username" placeholder="不填则自动生成，如 emp10" />
         </el-form-item>
 
         <el-form-item label="性别" required>
@@ -150,6 +159,7 @@ const searchForm = ref({
 const form = ref({
   id: null,
   name: '',
+  username: '',
   gender: '男',
   departmentId: null
 })
@@ -225,7 +235,7 @@ const handleCurrentChange = (page) => {
 
 const handleAdd = () => {
   dialogTitle.value = '新增员工'
-  form.value = { id: null, name: '', gender: '男', departmentId: null }
+  form.value = { id: null, name: '', username: '', gender: '男', departmentId: null }
   dialogVisible.value = true
 }
 
@@ -235,6 +245,7 @@ const handleEdit = (row) => {
   form.value = {
     id: row.id,
     name: row.name,
+    username: row.username || `emp${row.id}`,
     gender: row.gender,
     departmentId: row.departmentId
   }
@@ -245,6 +256,7 @@ const buildPayload = () => {
   // 不要把 id:'' 发给后端
   const payload = {
     name: form.value.name,
+    username: form.value.username,
     gender: form.value.gender,
     departmentId: form.value.departmentId
   }

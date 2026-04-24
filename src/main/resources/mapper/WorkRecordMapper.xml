@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.workrecode.mapper.WorkRecordMapper">
+
+    <select id="listWithProject" resultType="com.example.workrecode.entity.WorkRecord">
+        SELECT
+            r.*,
+            COALESCE(NULLIF(r.work_content, ''), p.name) AS work_content,
+            p.name AS project_name
+        FROM work_record r
+        LEFT JOIN work_project p ON p.id = r.project_id
+        <where>
+            <if test="employeeId != null">
+                AND r.employee_id = #{employeeId}
+            </if>
+            <if test="status != null and status != ''">
+                AND r.status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (r.work_content LIKE CONCAT('%', #{keyword}, '%')
+                    OR p.name LIKE CONCAT('%', #{keyword}, '%')
+                    OR r.employee_name LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="startDate != null">
+                AND r.work_date &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND r.work_date &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY r.work_date DESC, r.id DESC
+    </select>
+
+    <select id="statistics" resultType="java.util.Map">
+        SELECT
+            r.employee_name AS employeeName,
+            r.work_date AS workDate,
+            COUNT(DISTINCT COALESCE(NULLIF(r.work_content, ''), p.name)) AS recordCount,
+            COALESCE(SUM(r.work_hours), 0) AS totalWorkHours,
+            COALESCE(SUM(r.overtime_hours), 0) AS totalOvertimeHours
+        FROM work_record r
+        LEFT JOIN work_project p ON p.id = r.project_id
+        WHERE r.status = 'APPROVED'
+        <if test="startDate != null">
+            AND r.work_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND r.work_date &lt;= #{endDate}
+        </if>
+        GROUP BY r.employee_name, r.work_date
+        ORDER BY r.work_date DESC, r.employee_name
+    </select>
+
+    <select id="sumApprovedWeightByEmployeeAndDate" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(work_hours), 0)
+        FROM work_record
+        WHERE employee_id = #{employeeId}
+          AND work_date = #{workDate}
+          AND status = 'APPROVED'
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="selectByEmployeeAndDate" resultType="com.example.workrecode.entity.WorkRecord">
+        SELECT *
+        FROM work_record
+        WHERE employee_id = #{employeeId}
+          AND work_date = #{workDate}
+        ORDER BY id
+    </select>
+
+</mapper>

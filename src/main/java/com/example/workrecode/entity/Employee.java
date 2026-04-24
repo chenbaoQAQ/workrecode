@@ -36,4 +36,8 @@ public class Employee {
     /** join 查询出来的部门描述（列名 department_description -> 驼峰 departmentDescription） */
     @TableField(exist = false)
     private String departmentDescription;
+
+    /** 员工登录用户名，不在 employee 表中，用于员工管理页面展示和新增时创建账号 */
+    @TableField(exist = false)
+    private String username;
 }

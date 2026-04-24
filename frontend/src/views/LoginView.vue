@@ -3,7 +3,7 @@
     <el-card class="login-card" shadow="hover">
       <template #header>
         <div class="card-header">
-          <h2>员工管理系统</h2>
+          <h2>工时统计系统</h2>
           <p>请登录您的账号</p>
         </div>
       </template>
@@ -75,8 +75,8 @@ const handleLogin = async () => {
       localStorage.setItem('user', JSON.stringify(res.data))
       ElMessage.success('登录成功')
       
-      // 跳转到首页
-      router.push('/')
+      // 按角色跳转到对应首页
+      router.push(res.data?.role === 'ADMIN' ? '/work-admin' : '/work-records')
     } else {
       // 登录失败，显示错误信息
       ElMessage.error(res.message || '登录失败')

@@ -8,7 +8,7 @@
     <!-- 顶部导航栏 -->
     <header class="app-header">
       <div class="header-content">
-        <h1 class="app-title">员工管理系统</h1>
+        <h1 class="app-title">工时统计系统</h1>
         <div class="user-info">
           <span>{{ userInfo.name }} ({{ userInfo.role }})</span>
           <el-button type="text" @click="handleLogout">退出登录</el-button>
@@ -32,13 +32,25 @@
             <el-icon><House /></el-icon>
             <span>首页</span>
           </el-menu-item>
-          <el-menu-item index="employees">
+          <el-menu-item index="employees" v-if="isAdmin">
             <el-icon><User /></el-icon>
             <span>员工管理</span>
           </el-menu-item>
-          <el-menu-item index="departments">
+          <el-menu-item index="departments" v-if="isAdmin">
             <el-icon><OfficeBuilding /></el-icon>
             <span>部门管理</span>
+          </el-menu-item>
+          <el-menu-item index="work-records" v-if="!isAdmin">
+            <el-icon><Clock /></el-icon>
+            <span>工时填报</span>
+          </el-menu-item>
+          <el-menu-item index="work-admin" v-if="isAdmin">
+            <el-icon><DataAnalysis /></el-icon>
+            <span>工时统计</span>
+          </el-menu-item>
+          <el-menu-item index="work-projects" v-if="isAdmin">
+            <el-icon><Folder /></el-icon>
+            <span>项目管理</span>
           </el-menu-item>
         </el-menu>
       </aside>
@@ -54,7 +66,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { House, User, OfficeBuilding } from '@element-plus/icons-vue'
+import { Clock, DataAnalysis, Folder, House, OfficeBuilding, User } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -63,6 +75,7 @@ const route = useRoute()
 // 响应式数据
 const userInfo = ref({})
 const isLoggedIn = ref(false)
+const isAdmin = computed(() => userInfo.value?.role === 'ADMIN')
 
 // 计算当前激活的菜单
 const activeMenu = computed(() => {

@@ -5,17 +5,25 @@
 
     <!-- 查询所有员工，并关联部门信息 -->
     <select id="selectAllWithDepartment" resultType="com.example.workrecode.entity.Employee">
-        SELECT e.*, d.name as department_name, d.description as department_description
+        SELECT e.*,
+               d.name as department_name,
+               d.description as department_description,
+               u.username as username
         FROM employee e
         LEFT JOIN department d ON e.department_id = d.id
+        LEFT JOIN user u ON u.name = e.name AND u.role = 'EMPLOYEE'
         ORDER BY e.id
     </select>
 
     <!-- 根据部门ID查询员工 -->
     <select id="selectByDepartmentId" resultType="com.example.workrecode.entity.Employee">
-        SELECT e.*, d.name as department_name, d.description as department_description
+        SELECT e.*,
+               d.name as department_name,
+               d.description as department_description,
+               u.username as username
         FROM employee e
         LEFT JOIN department d ON e.department_id = d.id
+        LEFT JOIN user u ON u.name = e.name AND u.role = 'EMPLOYEE'
         WHERE e.department_id = #{departmentId}
         ORDER BY e.id
     </select>

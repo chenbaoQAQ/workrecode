@@ -1,0 +1,81 @@
+<view class="page">
+  <view class="hero">
+    <view>
+      <view class="hero-title">在工状态填报</view>
+      <view class="hero-desc">填写今日项目权重，提交后进入管理员审批</view>
+    </view>
+    <view class="hero-badge">近7天</view>
+  </view>
+
+  <view class="summary">
+    <view class="summary-card">
+      <view class="summary-value">{{totalWeight}}</view>
+      <view class="summary-label">今日已填</view>
+    </view>
+    <view class="summary-card">
+      <view class="summary-value">{{remainingWeight}}</view>
+      <view class="summary-label">剩余权重</view>
+    </view>
+    <view class="summary-card">
+      <view class="summary-value">{{pendingCount}}</view>
+      <view class="summary-label">待审批</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">提交填报</view>
+
+    <view class="field">
+      <view class="label">登记日期</view>
+      <picker mode="date" value="{{form.workDate}}" start="{{minDate}}" end="{{today}}" onChange="onDateChange">
+        <view class="picker-value">{{form.workDate}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <view class="label">项目名称</view>
+      <picker range="{{projectNames}}" value="{{projectIndex}}" onChange="onProjectChange">
+        <view class="picker-value {{projectIndex < 0 ? 'placeholder' : ''}}">
+          {{selectedProjectName}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <view class="label">项目权重</view>
+      <view class="stepper">
+        <button class="step-btn" onTap="minusWeight">-</button>
+        <input class="weight-input" type="digit" value="{{form.workHours}}" onInput="onWeightInput" />
+        <button class="step-btn" onTap="plusWeight">+</button>
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="label">备注</view>
+      <textarea class="textarea" value="{{form.remark}}" placeholder="可填写补充说明或加班原因" onInput="onRemarkInput" />
+    </view>
+
+    <button class="submit" loading="{{saving}}" disabled="{{saving}}" onTap="submitRecord">提交给管理员审批</button>
+  </view>
+
+  <view class="card record-card">
+    <view class="section-row">
+      <view class="section-title">今日填报记录</view>
+      <view class="refresh" onTap="fetchData">刷新</view>
+    </view>
+
+    <block a:if="{{records.length === 0}}">
+      <view class="empty">今天还没有填报记录</view>
+    </block>
+
+    <block a:for="{{records}}" a:key="id">
+      <view class="record-item">
+        <view class="record-main">
+          <view class="record-title">{{item.workContent}}</view>
+          <view class="record-meta">{{item.workDate}} · 权重 {{item.workHours}}</view>
+        </view>
+        <view class="status {{item.statusClass}}">{{item.statusText}}</view>
+      </view>
+    </block>
+  </view>
+</view>

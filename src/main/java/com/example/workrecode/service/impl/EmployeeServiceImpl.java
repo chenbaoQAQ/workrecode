@@ -2,10 +2,13 @@ package com.example.workrecode.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.workrecode.entity.Employee;
+import com.example.workrecode.entity.User;
 import com.example.workrecode.mapper.EmployeeMapper;
+import com.example.workrecode.mapper.UserMapper;
 import com.example.workrecode.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -17,6 +20,8 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 
     @Autowired
     private EmployeeMapper employeeMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 查询所有员工，并关联部门信息
@@ -55,6 +60,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     @Override
     public Employee saveEmployee(Employee employee) {
         employeeMapper.insert(employee);
+        createOrUpdateEmployeeUser(employee);
         return employee;
     }
 
@@ -66,6 +72,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     @Override
     public Employee updateEmployee(Employee employee) {
         employeeMapper.updateById(employee);
+        createOrUpdateEmployeeUser(employee);
         return employee;
     }
 
@@ -76,7 +83,37 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
      */
     @Override
     public boolean deleteById(Long id) {
+        Employee employee = employeeMapper.selectById(id);
+        if (employee != null) {
+            User user = userMapper.selectByUsername(buildDefaultUsername(id));
+            if (user != null) {
+                userMapper.deleteById(user.getId());
+            }
+        }
         int result = employeeMapper.deleteById(id);
         return result > 0;
+    }
+
+    private void createOrUpdateEmployeeUser(Employee employee) {
+        String username = StringUtils.hasText(employee.getUsername())
+                ? employee.getUsername().trim()
+                : buildDefaultUsername(employee.getId());
+        User user = userMapper.selectByUsername(username);
+        if (user == null) {
+            user = new User();
+            user.setUsername(username);
+            user.setPassword("123456");
+            user.setRole("EMPLOYEE");
+        }
+        user.setName(employee.getName());
+        if (user.getId() == null) {
+            userMapper.insert(user);
+        } else {
+            userMapper.updateById(user);
+        }
+    }
+
+    private String buildDefaultUsername(Long employeeId) {
+        return "emp" + employeeId;
     }
 }
