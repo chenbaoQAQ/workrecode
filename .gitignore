@@ -17,3 +17,6 @@ dist/
 Thumbs.db
 
 .mvn-local/
+
+# ===== DingTalk MiniApp IDE =====
+dingtalk-miniapp/.mini-ide/
