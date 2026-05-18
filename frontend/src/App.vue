@@ -46,7 +46,11 @@
           </el-menu-item>
           <el-menu-item index="work-admin" v-if="isAdmin">
             <el-icon><DataAnalysis /></el-icon>
-            <span>工时统计</span>
+            <span>审批记录</span>
+          </el-menu-item>
+          <el-menu-item index="work-statistics" v-if="isAdmin">
+            <el-icon><DataAnalysis /></el-icon>
+            <span>统计分析</span>
           </el-menu-item>
           <el-menu-item index="work-projects" v-if="isAdmin">
             <el-icon><Folder /></el-icon>

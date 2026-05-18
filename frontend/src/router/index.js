@@ -61,6 +61,13 @@ const router = createRouter({
     },
 
     {
+      path: '/work-statistics',
+      name: 'work-statistics',
+      component: () => import('../views/WorkStatisticsView.vue'),
+      meta: { requiresAuth: true, adminOnly: true }
+    },
+
+    {
       path: '/work-projects',
       name: 'work-projects',
       component: () => import('../views/WorkProjectView.vue'),
