@@ -58,6 +58,21 @@ public class WorkRecordController {
         return Result.success("已驳回申请", workRecordService.reject(id, remark));
     }
 
+    @PostMapping("/{id}/cancel")
+    public Result<WorkRecord> cancel(@PathVariable Long id, @RequestBody(required = false) Map<String, Object> body) {
+        Long employeeId = null;
+        if (body != null && body.get("employeeId") != null) {
+            employeeId = Long.valueOf(String.valueOf(body.get("employeeId")));
+        }
+        try {
+            return Result.success("已撤回申请", workRecordService.cancel(id, employeeId));
+        } catch (IllegalArgumentException e) {
+            return Result.error(400, e.getMessage());
+        } catch (IllegalStateException e) {
+            return Result.error(409, e.getMessage());
+        }
+    }
+
     @GetMapping("/statistics")
     public Result<List<Map<String, Object>>> statistics(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {

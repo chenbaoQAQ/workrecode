@@ -13,5 +13,6 @@ public interface WorkRecordService extends IService<WorkRecord> {
     WorkRecord updateRecord(WorkRecord record);
     WorkRecord approve(Long id, String adminRemark);
     WorkRecord reject(Long id, String adminRemark);
+    WorkRecord cancel(Long id, Long employeeId);
     List<Map<String, Object>> statistics(LocalDate startDate, LocalDate endDate);
 }

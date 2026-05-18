@@ -68,7 +68,14 @@ const handleLogin = async () => {
     loading.value = true
     
     // 发送登录请求
-    const res = await axios.post('/login', loginForm)
+    const formData = new URLSearchParams()
+    formData.append('username', loginForm.username)
+    formData.append('password', loginForm.password)
+    const res = await axios.post('/login', formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
     
     if (res.code === 200) {
       // 登录成功，保存用户信息到本地存储
@@ -84,7 +91,11 @@ const handleLogin = async () => {
   } catch (error) {
     // 处理表单验证失败或请求异常
     console.log('Login error:', error)
-    if (error.name !== 'Error') {
+    if (error?.response?.data?.message) {
+      ElMessage.error(error.response.data.message)
+    } else if (error?.message && error?.name === 'AxiosError') {
+      ElMessage.error('登录请求失败: ' + error.message)
+    } else if (error.name !== 'Error') {
       ElMessage.error('表单验证失败: ' + error.message || '请检查表单填写是否正确')
     } else {
       ElMessage.error('登录失败，请检查后端服务是否启动')

@@ -4,8 +4,10 @@ import com.example.workrecode.common.Result;
 import com.example.workrecode.entity.User;
 import com.example.workrecode.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,8 +26,21 @@ public class UserController {
      * @param loginData 包含用户名和密码的请求体
      * @return 登录结果，包含用户信息（不包含密码）
      */
-    @PostMapping("/login")
-    public Result login(@RequestBody Map<String, String> loginData) {
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Result loginJson(@RequestBody Map<String, String> loginData) {
+        return doLogin(loginData);
+    }
+
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public Result loginForm(@RequestParam(value = "username", required = false) String username,
+                            @RequestParam(value = "password", required = false) String password) {
+        Map<String, String> loginData = new HashMap<>();
+        loginData.put("username", username);
+        loginData.put("password", password);
+        return doLogin(loginData);
+    }
+
+    private Result doLogin(Map<String, String> loginData) {
         // 参数验证
         if (loginData == null || loginData.get("username") == null || loginData.get("password") == null) {
             return Result.error("请求参数不完整，请提供用户名和密码");

@@ -27,7 +27,7 @@
 
     <view class="field">
       <view class="label">登记日期</view>
-      <picker mode="date" value="{{form.workDate}}" start="{{minDate}}" end="{{today}}" onChange="onDateChange">
+      <picker range="{{recentDates}}" value="{{dateIndex}}" onChange="onDateChange">
         <view class="picker-value">{{form.workDate}}</view>
       </picker>
     </view>
@@ -74,7 +74,10 @@
           <view class="record-title">{{item.workContent}}</view>
           <view class="record-meta">{{item.workDate}} · 权重 {{item.workHours}}</view>
         </view>
-        <view class="status {{item.statusClass}}">{{item.statusText}}</view>
+        <view class="record-actions">
+          <view class="status {{item.statusClass}}">{{item.statusText}}</view>
+          <button a:if="{{item.canCancel}}" class="cancel-btn" data-id="{{item.id}}" onTap="cancelRecord">撤回</button>
+        </view>
       </view>
     </block>
   </view>

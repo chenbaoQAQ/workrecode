@@ -142,8 +142,8 @@ const totals = computed(() => {
   }
 })
 
-const statusText = (status) => ({ APPROVED: '已通过', PENDING: '待审批', REJECTED: '已驳回' }[status] || status)
-const statusType = (status) => ({ APPROVED: 'success', PENDING: 'warning', REJECTED: 'danger' }[status] || 'info')
+const statusText = (status) => ({ APPROVED: '已通过', PENDING: '待审批', REJECTED: '已驳回', CANCELLED: '已撤回' }[status] || status)
+const statusType = (status) => ({ APPROVED: 'success', PENDING: 'warning', REJECTED: 'danger', CANCELLED: 'info' }[status] || 'info')
 const formatWeight = (value) => Number(value || 0).toFixed(2)
 
 const displayOvertime = (row) => {

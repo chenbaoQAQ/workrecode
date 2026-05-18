@@ -73,6 +73,28 @@ public class WorkRecordServiceImpl extends ServiceImpl<WorkRecordMapper, WorkRec
     }
 
     @Override
+    public WorkRecord cancel(Long id, Long employeeId) {
+        WorkRecord record = getById(id);
+        if (record == null) {
+            throw new IllegalArgumentException("填报记录不存在");
+        }
+        if (employeeId != null && record.getEmployeeId() != null && !employeeId.equals(record.getEmployeeId())) {
+            throw new IllegalArgumentException("只能撤回自己的填报记录");
+        }
+        if (!"PENDING".equals(record.getStatus())) {
+            throw new IllegalStateException("只有待审批记录可以撤回");
+        }
+
+        record.setStatHours(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        record.setOvertimeHours(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        record.setStatus("CANCELLED");
+        record.setAdminRemark("员工已撤回");
+        updateById(record);
+        recalculateDay(record.getEmployeeId(), record.getWorkDate(), null, false);
+        return getById(id);
+    }
+
+    @Override
     public List<Map<String, Object>> statistics(LocalDate startDate, LocalDate endDate) {
         return baseMapper.statistics(startDate, endDate);
     }
@@ -103,7 +125,7 @@ public class WorkRecordServiceImpl extends ServiceImpl<WorkRecordMapper, WorkRec
         BigDecimal usedNormalHours = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 
         for (WorkRecord record : records) {
-            if ("REJECTED".equals(record.getStatus())) {
+            if ("REJECTED".equals(record.getStatus()) || "CANCELLED".equals(record.getStatus())) {
                 record.setStatHours(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
                 record.setOvertimeHours(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
                 updateById(record);

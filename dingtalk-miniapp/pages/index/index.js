@@ -10,6 +10,14 @@ function formatDate(date) {
   return `${year}-${month}-${day}`
 }
 
+function buildRecentDates() {
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date()
+    date.setDate(date.getDate() - index)
+    return formatDate(date)
+  })
+}
+
 function toFixedWeight(value) {
   return Number(value || 0).toFixed(2)
 }
@@ -17,7 +25,8 @@ function toFixedWeight(value) {
 Page({
   data: {
     today: formatDate(new Date()),
-    minDate: formatDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
+    recentDates: buildRecentDates(),
+    dateIndex: 0,
     projects: [],
     projectNames: [],
     projectIndex: -1,
@@ -56,7 +65,7 @@ Page({
 
       const projects = ((projectRes && projectRes.data) || []).filter((item) => item.enabled)
       const records = ((recordRes && recordRes.data) || []).map((item) => this.decorateRecord(item))
-      const effectiveRecords = records.filter((item) => item.status !== 'REJECTED')
+      const effectiveRecords = records.filter((item) => !['REJECTED', 'CANCELLED'].includes(item.status))
       const total = effectiveRecords.reduce((sum, item) => sum + Number(item.workHours || 0), 0)
 
       this.setData({
@@ -76,19 +85,23 @@ Page({
     const map = {
       APPROVED: { text: '已通过', className: 'status-approved' },
       PENDING: { text: '待审批', className: 'status-pending' },
-      REJECTED: { text: '已驳回', className: 'status-rejected' }
+      REJECTED: { text: '已驳回', className: 'status-rejected' },
+      CANCELLED: { text: '已撤回', className: 'status-cancelled' }
     }
     const status = map[record.status] || { text: record.status || '未知', className: 'status-pending' }
     return {
       ...record,
       statusText: status.text,
-      statusClass: status.className
+      statusClass: status.className,
+      canCancel: record.status === 'PENDING'
     }
   },
 
   onDateChange(event) {
+    const dateIndex = Number(event.detail.value)
     this.setData({
-      'form.workDate': event.detail.value
+      dateIndex,
+      'form.workDate': this.data.recentDates[dateIndex]
     })
     this.fetchData()
   },
@@ -165,6 +178,42 @@ Page({
       platform.showToast({ type: 'fail', content: '提交失败，请检查后端' })
     } finally {
       this.setData({ saving: false })
+    }
+  },
+
+  async cancelRecord(event) {
+    const id = event.currentTarget.dataset.id
+    if (!id) {
+      return
+    }
+
+    const confirm = await new Promise((resolve) => {
+      platform.confirm({
+        title: '撤回填报',
+        content: '确定撤回这条待审批记录吗？',
+        confirmButtonText: '撤回',
+        cancelButtonText: '取消',
+        success: (res) => resolve(res.confirm !== false),
+        fail: () => resolve(false)
+      })
+    })
+
+    if (!confirm) {
+      return
+    }
+
+    try {
+      const res = await api.post(`/work-records/${id}/cancel`, {
+        employeeId: demoEmployee.id
+      })
+      if (res && res.code === 200) {
+        platform.showToast({ type: 'success', content: '已撤回' })
+        await this.fetchData()
+      } else {
+        platform.showToast({ type: 'fail', content: (res && res.message) || '撤回失败' })
+      }
+    } catch (err) {
+      platform.showToast({ type: 'fail', content: '撤回失败，请检查后端' })
     }
   }
 })
